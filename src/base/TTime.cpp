@@ -40,7 +40,7 @@ std::string ISOTime()
     time_t t = time(NULL);
     localtime_r(&t, &tm);
     char buf[128] = {0};
-    auto n = sprintf(buf, "%04d-%02d-%02d %02d:%02d:%02d.%03d",
+    auto n = sprintf(buf, "%4d-%02d-%02dT%02d:%02d:%02d",
                      tm.tm_year + 1900,
                      tm.tm_mon + 1,
                      tm.tm_mday,
