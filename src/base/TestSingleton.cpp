@@ -1,4 +1,4 @@
-#include "Singlelton.h"
+#include "Singleton.h"
 #include  <iostream>
 using namespace tmms::base;
     
@@ -11,9 +11,10 @@ public:
         std::cout << "A::Print()" << std::endl;
     }
 };
-
+/* 
 int main(){
     auto sA = tmms::base::Singleton<A>::Instance();
     sA->Print();
     return 0;
 }
+*/
