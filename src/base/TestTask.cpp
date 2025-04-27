@@ -31,7 +31,7 @@ void testtask(){
     sTaskMgr->Add(task3);
     sTaskMgr->Add(task4);
 }
-
+/*
 int main(){
     testtask();
     while(1){
@@ -40,3 +40,4 @@ int main(){
     }
     return 0;
 }
+*/

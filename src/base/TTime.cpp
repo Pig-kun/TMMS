@@ -31,7 +31,7 @@ int64_t TTime::Now(int &year, int &month, int &day, int &hour, int &minute, int 
     return t;
 }
 
-std::string ISOTime()
+std::string TTime::ISOTime()
 {
     struct timeval tv;
     struct tm tm;
