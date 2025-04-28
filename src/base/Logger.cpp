@@ -3,6 +3,11 @@
 
 using namespace tmms::base;
 
+Logger::Logger(const FileLogPtr &log)
+:log_(log){
+
+}
+
 void Logger::SetLogLevel(const LogLevel &level){
     level_ = level;
 }
@@ -12,5 +17,9 @@ LogLevel Logger::GetLogLevel() const{
 }
 
 void Logger::Write(const std::string &msg){
-    std::cout << msg << std::endl;
+    if(log_){
+        log_->WriteLog(msg);
+    }else{
+        std::cout << msg;
+    }
 }
