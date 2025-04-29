@@ -68,6 +68,7 @@ string StringUtils::FileName(const string &path){
     else{
         return file_name;
     }
+    return string();
 }
 
 string StringUtils::Extension(const string &path){

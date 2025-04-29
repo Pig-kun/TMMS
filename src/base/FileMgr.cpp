@@ -45,10 +45,10 @@ void FileMgr::OnCheck(){
         if(minute_change && l.second->GetRotateType() == kRotateMinute){
             RotateMinutes(l.second);
         }
-        if(hour_change&l.second->GetRotateType() == kRotateHour){
+        if(hour_change && l.second->GetRotateType() == kRotateHour){
             RotateHours(l.second);
         }
-        if(day_change&l.second->GetRotateType() == kRotateDay){
+        if(day_change && l.second->GetRotateType() == kRotateDay){
             RotateDays(l.second);
         }
     }

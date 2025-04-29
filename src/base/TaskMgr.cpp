@@ -26,9 +26,11 @@ bool TaskMgr::Add(TaskPtr &task){
         return false;
     }
     tasks_.emplace(task);
+    return true;
 }
 
 bool TaskMgr::Del(TaskPtr &task){
     std::lock_guard<std::mutex> lock(lock_);
     tasks_.erase(task);
+    return true;
 }
