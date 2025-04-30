@@ -40,19 +40,27 @@ void TestEventLoopThreadPool(){
 
     pool.Start();
 
+    std::cout << "thread id : " << std::this_thread::get_id() << std::endl;
+
     std::vector<EventLoop*> loops = pool.GetLoops();
 
     for( auto &e : loops){
-        std::cout << "loop:" << e << std::endl;
+
+        e->RunInLoop([&e](){
+            std::cout << "loop:" << e <<" thread id : " << std::this_thread::get_id() << std::endl;
+        }); 
     }
 
-    EventLoop * loop = pool.GetNextLoop();
-    std::cout << "loop:" << loop << std::endl;
-    loop = pool.GetNextLoop();
-    std::cout << "loop:" << loop << std::endl;
+//    EventLoop * loop = pool.GetNextLoop();
+//    std::cout << "loop:" << loop << std::endl;
+//    loop = pool.GetNextLoop();
+//    std::cout << "loop:" << loop << std::endl;
 }
 
 int main(int argc, const char ** argv){
     TestEventLoopThreadPool();
+    while(1){
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
     return 0;
 }
