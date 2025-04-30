@@ -8,6 +8,7 @@
 #include <mutex>
 #include "Event.h"
 #include "PipeEvent.h"
+#include "TimingWheel.h"
 /*
     IO就绪事件监听
     IO事件处理
@@ -47,6 +48,13 @@ namespace network
             bool IsInLoopThread() const;
             void RunInLoop(const Func &f);
             void RunInLoop(Func &&f);
+
+            // 时间轮功能
+            void InsertEntry(uint32_t delay, EntryPtr entrPtr); 
+            void RunAfter(double delay, const Func &cb);
+            void RunAfter(double delay, Func &&cb);
+            void RunEvery(double inerval, const Func &cb);
+            void RunEvery(double inerval, Func &&cb);
         private:
             bool looping_{false};
             int epoll_fd_{-1};
@@ -59,6 +67,9 @@ namespace network
             std::queue<Func> functions_;
             std::mutex lock_;
             PipeEventPtr pipe_event_;
+
+            // 时间轮
+            TimingWheel wheel_;
         };
     }
 }

@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include "base/TTime.h"
 
 using namespace tmms::network;
 
@@ -24,12 +25,13 @@ EventLoop::~EventLoop(){
 
 void EventLoop::Loop(){
     looping_ = true;
+    int64_t timeout = 1000;
     while (looping_) {
         memset(&epoll_events_[0], 0x00, sizeof(struct epoll_event)*epoll_events_.size());
         auto ret = ::epoll_wait(epoll_fd_,
                                  (struct epoll_event*)&epoll_events_[0],
                                   static_cast<int>(epoll_events_.size()), 
-                                  -1);
+                                  timeout);
         if(ret >= 0){
             for( int i = 0; i < ret; i++){  
                 struct epoll_event &ev = epoll_events_[i];
@@ -64,6 +66,8 @@ void EventLoop::Loop(){
                 epoll_events_.resize(epoll_events_.size() * 2);
             }
             RunFunctions();
+            int64_t now = tmms::base::TTime::NowMS();
+            wheel_.OnTimer(now);
         }else if(ret < 0){
             NETWORK_ERROR << "epoll wait error.error:" << errno;
         }
@@ -193,4 +197,55 @@ void EventLoop::WakeUp(){
     }
     int tmp = 1;
     pipe_event_->Write((const char*)&tmp, sizeof(tmp));
+}
+
+// 时间轮功能
+void EventLoop::InsertEntry(uint32_t delay, EntryPtr entrPtr){
+    if(IsInLoopThread()){
+        wheel_.InsertEntry(delay, entrPtr);
+    }else{
+        RunInLoop([this, delay, entrPtr](){
+            wheel_.InsertEntry(delay, entrPtr);
+        });
+    }
+}
+
+void EventLoop::RunAfter(double delay, const Func &cb){
+    if(IsInLoopThread()){
+        wheel_.RunAfter(delay, cb);
+    }else{
+        RunInLoop([this, delay, cb](){
+            wheel_.RunAfter(delay, cb);
+        });
+    }
+}
+
+void EventLoop::RunAfter(double delay, Func &&cb){
+    if(IsInLoopThread()){
+        wheel_.RunAfter(delay, cb);
+    }else{
+        RunInLoop([this, delay, cb](){
+            wheel_.RunAfter(delay, cb);
+        });
+    }
+}
+
+void EventLoop::RunEvery(double inerval, const Func &cb){
+    if(IsInLoopThread()){
+        wheel_.RunEvery(inerval, cb);
+    }else{
+        RunInLoop([this, inerval, cb](){
+            wheel_.RunEvery(inerval, cb);
+        });
+    }
+}
+
+void EventLoop::RunEvery(double inerval, Func &&cb){
+    if(IsInLoopThread()){
+        wheel_.RunEvery(inerval, cb);
+    }else{
+        RunInLoop([this, inerval, cb](){
+            wheel_.RunEvery(inerval, cb);
+        });
+    }
 }
