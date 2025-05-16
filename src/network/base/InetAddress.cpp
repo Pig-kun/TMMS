@@ -5,7 +5,7 @@
 using namespace tmms::network;
 
 void InetAddress::GetIpAndPort(const std::string &host, std::string &ip, std::string &port){
-    auto pos = host.find_last_of(':', 0);
+    auto pos = host.find_first_of(':', 0);
     if(pos != std::string::npos){
         ip = host.substr(0, pos);
         port = host.substr(pos + 1);
@@ -14,11 +14,11 @@ void InetAddress::GetIpAndPort(const std::string &host, std::string &ip, std::st
     }
 }
 
-InetAddress::InetAddress(const std::string &ip, uint16_t port, bool bv6=false)
+InetAddress::InetAddress(const std::string &ip, uint16_t port, bool bv6)
 :addr_(ip),port_(std::to_string(port)),is_ipv6_(bv6)
 {}
 
-InetAddress::InetAddress(const std::string &host, bool is_v6=false){
+InetAddress::InetAddress(const std::string &host, bool is_v6){
     GetIpAndPort(host, addr_, port_);
     is_ipv6_ = is_v6;
 }
@@ -72,7 +72,7 @@ uint16_t InetAddress::Port() const{
 void InetAddress::GetSockAddr(struct sockaddr *saddr) const{
     if(is_ipv6_){
         struct sockaddr_in6 *addr_in6 = (struct sockaddr_in6 *)saddr;
-        memset(&addr_in6, 0x00, sizeof(sockaddr_in6));
+        memset(addr_in6, 0x00, sizeof(struct sockaddr_in6));
 
         addr_in6->sin6_family = AF_INET6;
         addr_in6->sin6_port = htons(Port());
@@ -83,7 +83,7 @@ void InetAddress::GetSockAddr(struct sockaddr *saddr) const{
     }
 
     struct sockaddr_in *addr_in = (struct sockaddr_in *)saddr;
-    memset(&addr_in, 0x00, sizeof(sockaddr_in));
+    memset(addr_in, 0x00, sizeof(struct sockaddr_in));
 
     addr_in->sin_family = AF_INET;
     addr_in->sin_port = htons(Port());
@@ -93,7 +93,39 @@ void InetAddress::GetSockAddr(struct sockaddr *saddr) const{
 }
 
 // 测试函数
-bool InetAddress::IsIpV6() const{}
-bool InetAddress::IsWanIp() const{}
-bool InetAddress::IsLanIp() const{}
-bool InetAddress::IsLoopbackIp() const{}
+bool InetAddress::IsIpV6() const{
+    return is_ipv6_;
+}
+bool InetAddress::IsWanIp() const{
+    uint32_t a_start = IPv4("10.0.0.0");
+    uint32_t a_end = IPv4("10.255.255.255");
+    uint32_t b_start = IPv4("172.16.0.0");
+    uint32_t b_end = IPv4("172.31.255.255");
+    uint32_t c_start = IPv4("192.168.0.0");
+    uint32_t c_end = IPv4("192.168.255.255");
+
+    uint32_t ip = IPv4();
+    bool is_a = ip>=a_start && ip<=a_end;
+    bool is_b = ip>=b_start && ip<=b_end;
+    bool is_c = ip>=c_start && ip<=c_end;
+
+    return !is_a && !is_b && !is_c && ip!=INADDR_LOOPBACK;
+}
+bool InetAddress::IsLanIp() const{
+    uint32_t a_start = IPv4("10.0.0.0");
+    uint32_t a_end = IPv4("10.255.255.255");
+    uint32_t b_start = IPv4("172.16.0.0");
+    uint32_t b_end = IPv4("172.31.255.255");
+    uint32_t c_start = IPv4("192.168.0.0");
+    uint32_t c_end = IPv4("192.168.255.255");
+
+    uint32_t ip = IPv4();
+    bool is_a = ip>=a_start && ip<=a_end;
+    bool is_b = ip>=b_start && ip<=b_end;
+    bool is_c = ip>=c_start && ip<=c_end;
+
+    return is_a || is_b || is_c;
+}
+bool InetAddress::IsLoopbackIp() const{
+    return addr_ == "127.0.0.1";
+}
