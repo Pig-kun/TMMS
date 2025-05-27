@@ -6,3 +6,6 @@ target_link_libraries(InetAddressTest base network)
 
 add_executable(SockOptTest  SockOptTest.cpp)
 target_link_libraries(SockOptTest base network)
+
+add_executable(AcceptorTest  AcceptorTest.cpp)
+target_link_libraries(AcceptorTest base network)

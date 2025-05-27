@@ -3,12 +3,12 @@
 
 using namespace tmms::network;
 
-SockerOpt::SockerOpt(int sock, bool v6):sock_(sock), is_v6_(v6){
+SocketOpt::SocketOpt(int sock, bool v6):sock_(sock), is_v6_(v6){
 
 }
 
 // 创建接口
-int SockerOpt::CreateNonblockingTcpSocket(int family){
+int SocketOpt::CreateNonblockingTcpSocket(int family){
     int sock = ::socket(family, SOCK_STREAM|SOCK_NONBLOCK|SOCK_CLOEXEC, IPPROTO_TCP);
     if(sock < 0){
         NETWORK_ERROR << "create tcp socket failed";
@@ -17,7 +17,7 @@ int SockerOpt::CreateNonblockingTcpSocket(int family){
     return sock;
 }
 
-int SockerOpt::CreateNonblockingUdpSocket(int family){
+int SocketOpt::CreateNonblockingUdpSocket(int family){
     int sock = ::socket(family, SOCK_DGRAM|SOCK_NONBLOCK|SOCK_CLOEXEC, IPPROTO_UDP);
     if(sock < 0){
         NETWORK_ERROR << "create udp socket failed";
@@ -27,7 +27,7 @@ int SockerOpt::CreateNonblockingUdpSocket(int family){
 }
 
 
-int SockerOpt::BindAddress(const InetAddress &localaddr){
+int SocketOpt::BindAddress(const InetAddress &localaddr){
     if(localaddr.IsIpV6()){
         struct sockaddr_in6 addr;
         localaddr.GetSockAddr((struct sockaddr*)&addr);
@@ -42,11 +42,11 @@ int SockerOpt::BindAddress(const InetAddress &localaddr){
     }
 }
 
-int SockerOpt::Listen(){
+int SocketOpt::Listen(){
     return ::listen(sock_, SOMAXCONN);
 }
 
-int SockerOpt::Accept(InetAddress *peeraddr){
+int SocketOpt::Accept(InetAddress *peeraddr){
     struct sockaddr_in6 addr;
     socklen_t len = sizeof(struct sockaddr_in6);
     int sock = ::accept4(sock_, (struct sockaddr*)&addr, &len, SOCK_NONBLOCK|SOCK_CLOEXEC);
@@ -71,14 +71,14 @@ int SockerOpt::Accept(InetAddress *peeraddr){
 }
 
 // 客户端
-int SockerOpt::Connect(const InetAddress &addr){
+int SocketOpt::Connect(const InetAddress &addr){
     struct sockaddr_in6 addr_in;
     addr.GetSockAddr((struct sockaddr*)&addr_in);
     return ::connect(sock_, (struct sockaddr*)&addr_in, sizeof(struct sockaddr_in6));
 }
 
 // 获取地址
-InetAddressPtr SockerOpt::GetLocalAddr(){
+InetAddressPtr SocketOpt::GetLocalAddr(){
     struct sockaddr_in6 addr_in;
     socklen_t len = sizeof(struct sockaddr_in6);
     ::getsockname(sock_, (struct sockaddr*)&addr_in, &len);
@@ -100,7 +100,7 @@ InetAddressPtr SockerOpt::GetLocalAddr(){
     return peeraddr;
 }
 
-InetAddressPtr SockerOpt::GetPeerAddr(){
+InetAddressPtr SocketOpt::GetPeerAddr(){
     struct sockaddr_in6 addr_in;
     socklen_t len = sizeof(struct sockaddr_in6);
     ::getpeername(sock_, (struct sockaddr*)&addr_in, &len);
@@ -123,27 +123,27 @@ InetAddressPtr SockerOpt::GetPeerAddr(){
 }
 
 // 使能函数
-void SockerOpt::SetTcpNoDelay(bool on){
+void SocketOpt::SetTcpNoDelay(bool on){
     int optvalue = on ? 1 : 0;
     ::setsockopt(sock_, IPPROTO_TCP, TCP_NODELAY, &optvalue, sizeof(optvalue));
 }
 
-void SockerOpt::SetReuseAddr(bool on){
+void SocketOpt::SetReuseAddr(bool on){
     int optvalue = on ? 1 : 0;
     ::setsockopt(sock_, SOL_SOCKET, SO_REUSEADDR, &optvalue, sizeof(optvalue));
 }
 
-void SockerOpt::SetReusePort(bool on){
+void SocketOpt::SetReusePort(bool on){
     int optvalue = on ? 1 : 0;
     ::setsockopt(sock_, SOL_SOCKET, SO_REUSEPORT, &optvalue, sizeof(optvalue));
 }
 
-void SockerOpt::SetKeepAlive(bool on){
+void SocketOpt::SetKeepAlive(bool on){
     int optvalue = on ? 1 : 0;
     ::setsockopt(sock_, SOL_SOCKET, SO_KEEPALIVE, &optvalue, sizeof(optvalue));
 }
 
-void SockerOpt::SetNonBlocking(bool on){
+void SocketOpt::SetNonBlocking(bool on){
     int flag = ::fcntl(sock_, F_GETFL, 0);
     if(on){
         flag |= O_NONBLOCK;

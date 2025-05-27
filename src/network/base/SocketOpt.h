@@ -16,10 +16,10 @@
 namespace tmms{
     namespace network{
         using InetAddressPtr = std::shared_ptr<InetAddress>;
-        class SockerOpt{
+        class SocketOpt{
         public:
-            SockerOpt(int sock, bool v6=false);
-            ~SockerOpt() = default;
+            SocketOpt(int sock, bool v6=false);
+            ~SocketOpt() = default;
             
             // 创建接口
             static int CreateNonblockingTcpSocket(int family);

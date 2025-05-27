@@ -5,14 +5,14 @@
 using namespace tmms::network;
 
 void testClient(){
-    int sock = SockerOpt::CreateNonblockingTcpSocket(AF_INET);
+    int sock = SocketOpt::CreateNonblockingTcpSocket(AF_INET);
 
     if(sock < 0){
         std::cerr << "create socket failed" << std::endl;
         return ;
     }
     InetAddress sever("192.168.211.129:34444");
-    SockerOpt opt(sock);
+    SocketOpt opt(sock);
     opt.SetNonBlocking(false);
     auto ret = opt.Connect(sever);
 
@@ -23,14 +23,14 @@ void testClient(){
 }
 
 void testServer(){
-    int sock = SockerOpt::CreateNonblockingTcpSocket(AF_INET);
+    int sock = SocketOpt::CreateNonblockingTcpSocket(AF_INET);
 
     if(sock < 0){
         std::cerr << "create socket failed" << std::endl;
         return ;
     }
     InetAddress sever("0.0.0.0:34444");
-    SockerOpt opt(sock);
+    SocketOpt opt(sock);
     opt.SetNonBlocking(false);
     opt.BindAddress(sever);
     opt.Listen();
